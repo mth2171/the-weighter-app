@@ -1,0 +1,98 @@
+import { StyleSheet } from "react-native";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  signupFont: {
+    display: "flex",
+    fontSize: 30,
+    marginBottom: 20,
+  },
+  rowView: {
+    display: "flex",
+    width: "80%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+  },
+  nameInput: {
+    display: "flex",
+    height: 40,
+    width: "48%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowColor: "#d3d3d3",
+    shadowOpacity: 1,
+  },
+  emailInput: {
+    display: "flex",
+    height: 40,
+    width: "70%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowColor: "#d3d3d3",
+    shadowOpacity: 1,
+  },
+  emailButton: {
+    display: "flex",
+    height: 40,
+    width: "25%",
+    backgroundColor: "#699DA1",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    marginLeft: 5,
+  },
+  input: {
+    display: "flex",
+    height: 40,
+    width: "80%",
+    backgroundColor: "white",
+    marginTop: 15,
+    borderRadius: 10,
+    padding: 10,
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowColor: "#d3d3d3",
+    shadowOpacity: 1,
+  },
+  submit: {
+    display: "flex",
+    height: 40,
+    width: "30%",
+    backgroundColor: "#699DA1",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    margin: 10,
+  },
+  modalButton: {
+    display: "flex",
+    width: "40%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    marginLeft: 5,
+    backgroundColor: "#699DA1",
+  },
+});
+
+export default styles;
