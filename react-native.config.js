@@ -3,5 +3,5 @@ module.exports = {
     ios: {},
     android: {},
   },
-  assets: ["./assets/offline_model"],
+  assets: ["./assets/offline_model", "./assets/models/tfjs_model"],
 };

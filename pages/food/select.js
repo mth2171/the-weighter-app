@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Image, ImageBackground, Modal, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Image, ImageBackground, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Camera } from "expo-camera";
 import * as tf from "@tensorflow/tfjs";
 import * as ImagePicker from "expo-image-picker";
 import { SvgUri, Svg, Rect } from "react-native-svg";
-import { fetch, decodeJpeg } from "@tensorflow/tfjs-react-native";
+import { fetch, decodeJpeg, bundleResourceIO } from "@tensorflow/tfjs-react-native";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
+import { manipulateAsync } from "expo-image-manipulator";
 
 const WINDOW_WIDTH = Dimensions.get("window").width;
 const WINDOW_HEIGHT = WINDOW_WIDTH / (9 / 16);
@@ -17,6 +18,9 @@ const Select = () => {
   const [predictions, setPredictions] = useState(null);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [openModal, setOpenModal] = useState(false);
+  const [resultUri, setResultUri] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const cameraRef = useRef(null);
   const imageRef = useRef(null);
   useEffect(() => {
@@ -50,6 +54,7 @@ const Select = () => {
     if (imageUri) {
       setImageUri(null);
       setPredictions(null);
+      setResultUri([]);
     }
   };
 
@@ -60,7 +65,6 @@ const Select = () => {
 
     const model = await cocoSsd.load({ base: "lite_mobilenet_v2" });
     const prediction = await model.detect(imageTensor, 20, 0.05);
-    console.log(prediction);
     setPredictions(prediction.filter((value) => value.class === "bowl"));
   };
 
@@ -76,13 +80,13 @@ const Select = () => {
           const y = (value.bbox[1] * WINDOW_WIDTH) / imageSize.width + (500 - (imageSize.height * WINDOW_WIDTH) / imageSize.width) / 2;
           const width = (value.bbox[2] * WINDOW_WIDTH) / imageSize.width;
           const height = (value.bbox[3] * WINDOW_WIDTH) / imageSize.width;
-          return <Rect key={x} x={x} y={y} width={width} height={height} stroke="red" strokeWidth="2" />;
+          return <Rect key={Math.random()} x={x} y={y} width={width} height={height} stroke="red" strokeWidth="2" />;
         } else {
           const x = (value.bbox[0] * WINDOW_HEIGHT) / imageSize.height;
           const y = (value.bbox[1] * WINDOW_HEIGHT) / imageSize.height;
           const width = (value.bbox[2] * WINDOW_HEIGHT) / imageSize.height;
           const height = (value.bbox[3] * WINDOW_HEIGHT) / imageSize.height;
-          return <Rect key={x} x={x} y={y} width={width} height={height} stroke="red" strokeWidth="2" />;
+          return <Rect key={Math.random()} x={x} y={y} width={width} height={height} stroke="red" strokeWidth="2" />;
         }
       });
       return <Svg className="absolute w-full h-full">{rects}</Svg>;
@@ -90,6 +94,56 @@ const Select = () => {
       return <View></View>;
     }
   };
+
+  const cropImages = async () => {
+    if (predictions != null && predictions.length > 0) {
+      await Promise.all(
+        predictions.map((value) => {
+          const x = value.bbox[0];
+          const y = value.bbox[1];
+          const width = value.bbox[2];
+          const height = value.bbox[3];
+          const result = manipulateAsync(imageUri, [{ crop: { originX: x, originY: y, width, height } }]);
+          return result;
+        })
+      ).then((value) => {
+        setResultUri(value);
+      });
+    }
+  };
+
+  const detailImages = () => {
+    if (resultUri != null && resultUri.length > 0) {
+      const images = resultUri.map((value, index) => {
+        return (
+          <TouchableOpacity onPress={() => onClickDetailImage(value.uri)}>
+            <Image key={index} source={{ uri: value.uri }} className="flex w-20 h-20 mx-1" />
+          </TouchableOpacity>
+        );
+      });
+      return (
+        <ScrollView className="flex w-full flex-row" horizontal={true}>
+          {images}
+        </ScrollView>
+      );
+    } else {
+      return <View></View>;
+    }
+  };
+
+  const onClickDetailImage = async (uri) => {
+    setSelectedImage(uri);
+    const modelJson = require("../../assets/models/tfjs_model/model.json");
+    await tf.loadLayersModel(bundleResourceIO(modelJson, {})).then((model) => {
+      console.log(model);
+    });
+  };
+
+  useEffect(() => {
+    if (predictions) {
+      cropImages();
+    }
+  }, [predictions]);
 
   return (
     <View className="flex-1">
@@ -130,12 +184,18 @@ const Select = () => {
       )}
       <Modal animationType="slide" transparent={true} visible={openModal} onRequestClose={() => setOpenModal(!openModal)}>
         <View className="flex-1 justify-center items-center">
-          <View className="flex w-2/3 h-1/2 bg-white rounded-xl p-10 items-center shadow-shadow">
+          <View className="flex w-4/5 h-2/3 bg-white rounded-xl p-10 items-center shadow-shadow">
             <View className="flex w-full h-[15%] justify-center items-center">
               <Text className="text-3xl">상세정보 확인</Text>
             </View>
-            <View className="flex w-full h-[70%] justify-center items-center"></View>
-            <View className="flex w-full h-[15%] justify-center items-center">
+            {detailImages()}
+            <View className="flex w-full h-[15%] justify-center items-center flex-row">
+              <TouchableOpacity
+                className="flex bg-red-500 rounded-2xl mr-5"
+                onPress={() => setResultUri(resultUri.filter((value) => value.uri !== selectedImage))}
+              >
+                <Text className="text-white text-xl p-3">삭제</Text>
+              </TouchableOpacity>
               <TouchableOpacity className="flex bg-black rounded-2xl" onPress={() => setOpenModal(!openModal)}>
                 <Text className="text-white text-xl p-3">닫기</Text>
               </TouchableOpacity>
