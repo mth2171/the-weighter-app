@@ -5,15 +5,16 @@ import { API_URL } from "@env";
 import axios from "axios";
 import { getToken } from "../../utils/tokenManaging";
 
-const Result = ({ route, navigation }) => {
+const PoseResult = ({ route, navigation }) => {
   const [count, setCount] = useState(0);
+  const [nowCount, setNowCount] = useState(0);
   const [time, setTime] = useState(0);
   const [type, setType] = useState("");
 
   useEffect(() => {
-    console.log(route.params.type);
     setCount(route.params.count);
-    setTime(route.params.TIME);
+    setNowCount(route.params.nowCount);
+    setTime(route.params.time);
     setType(route.params.type);
   }, [route]);
 
@@ -56,7 +57,7 @@ const Result = ({ route, navigation }) => {
             <Text className="text-2xl">갯수</Text>
           </View>
           <View className="flex w-2/3 p-3 border-black items-start">
-            <Text className="text-2xl">{count}개</Text>
+            <Text className="text-2xl">{nowCount}개</Text>
           </View>
         </View>
         <View className="flex w-2/3 flex-row justify-center items-center border-b border-x">
@@ -72,7 +73,7 @@ const Result = ({ route, navigation }) => {
             <Text className="text-2xl">점수</Text>
           </View>
           <View className="flex w-2/3 p-3 border-black items-start">
-            <Text className="text-2xl">{parseInt((count / time) * 100)} / 100점</Text>
+            <Text className="text-2xl">{`${nowCount}개 / ${count}개`}</Text>
           </View>
         </View>
         <TouchableOpacity className="flex w-1/3 h-14 bg-button justify-center items-center rounded-xl mt-10" onPress={onClickSubmitButton}>
@@ -84,4 +85,4 @@ const Result = ({ route, navigation }) => {
   );
 };
 
-export default Result;
+export default PoseResult;

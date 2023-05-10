@@ -24,7 +24,7 @@ const DietRecommend = ({ navigation }) => {
     if (gender && age && height && weight) {
       setIsButtonClick(true);
       axios
-        .post(`http://192.168.0.242:3000/api/chat`, { prompt: { gender, age, height, weight, disease, allergy, flag: false, buttonInput: "button1" } })
+        .post(`http://172.21.1.182:3000/api/chat`, { prompt: { gender, age, height, weight, disease, allergy, flag: false, buttonInput: "button1" } })
         .then((res) => {
           const responseStr = res.data.response.text.replace(/^\n+/, "");
           setResult(responseStr);
@@ -133,15 +133,18 @@ const DietRecommend = ({ navigation }) => {
                   <Text className="text-xl">결과 생성중입니다. 잠시만 기다려주세요.</Text>
                 </>
               )}
-              <View className="flex w-full mt-5 flex-row justify-center items-center">
+              <View className="flex w-full mt-5 justify-center items-center flex-row">
                 <TouchableOpacity
-                  className="flex w-1/3 p-3 justify-center items-center bg-button mt-5 rounded-xl"
+                  className="flex w-1/3 p-3 justify-center items-center bg-button mt-5 rounded-xl mx-1"
                   onPress={() => {
                     setResult("");
                     setIsButtonClick(false);
                   }}
                 >
                   <Text className="text-white text-lg">닫기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity className="flex w-1/3 p-3 justify-center items-center bg-button mt-5 rounded-xl mx-1" onPress={() => {}}>
+                  <Text className="text-white text-lg">저장</Text>
                 </TouchableOpacity>
               </View>
             </View>

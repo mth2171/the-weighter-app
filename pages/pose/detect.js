@@ -24,22 +24,23 @@ const OUTPUT_TENSOR_HHEIGHT = OUTPUT_TENSOR_WIDTH / (IS_IOS ? 9 / 16 : 3 / 4);
 
 const AUTO_RENDER = false;
 
-const TIME = 30;
-
 const LOAD_MODEL_FROM_BUNDLE = false;
 
-export default function Detect({ navigation, route }) {
+export default function PoseDetect({ navigation, route }) {
   const [tfReady, setTfReady] = useState(false);
   const [model, setModel] = useState();
   const [keypoints, setKeypoints] = useState();
   const [orientation, setOrientation] = useState();
   const [isStarted, setIsStarted] = useState(false);
-  const [nowTime, setNowTime] = useState(TIME);
+  const [nowTime, setNowTime] = useState(0);
+  const [mode, setMode] = useState("");
+  const [type, setType] = useState("");
+  const [nowCount, setNowCount] = useState();
 
   const cameraRef = useRef(null);
   const rafId = useRef(null);
 
-  const [count, step, checkPoses] = EstimatePose(route.params.pose);
+  const [count, step, checkPoses] = EstimatePose(type, mode);
 
   useEffect(() => {
     async function prepare() {
@@ -85,6 +86,13 @@ export default function Detect({ navigation, route }) {
     };
   }, []);
 
+  useEffect(() => {
+    console.log(route.params);
+    setMode(route.params.mode);
+    setType(route.params.pose);
+    setNowCount(route.params.count);
+  }, [route]);
+
   const handleCameraStream = async (images, updatePreview, gl) => {
     const loop = async () => {
       // Get the tensor and run pose detection.
@@ -115,19 +123,31 @@ export default function Detect({ navigation, route }) {
   };
 
   useEffect(() => {
-    if (isStarted && nowTime !== 0) {
+    if (count) {
+      console.log("mode : ", mode);
+      setNowCount(mode === "free" ? nowCount + 1 : nowCount - 1);
+    }
+  }, [count]);
+
+  useEffect(() => {
+    if (isStarted) {
       const timer = setInterval(() => {
-        setNowTime(nowTime - 1);
+        setNowTime(nowTime + 1);
         clearInterval(timer);
       }, 1000);
-    } else if (nowTime === 0) {
+    } else if (nowTime !== 0 && !isStarted) {
       cancelAnimationFrame(rafId.current);
-      navigation.navigate("PoseResult", { count, TIME, type: route.params.pose });
-      setNowTime(TIME);
+      navigation.navigate("PoseResult", {
+        count: mode === "free" ? 0 : route.params.count,
+        nowCount: mode === "free" ? nowCount : route.params.count - nowCount,
+        time: nowTime,
+        type: route.params.pose,
+      });
+      setNowTime(0);
       setIsStarted(false);
     }
     if (!isStarted) {
-      setNowTime(TIME);
+      setNowTime(0);
     }
   }, [isStarted, nowTime]);
 
@@ -199,24 +219,24 @@ export default function Detect({ navigation, route }) {
   } else {
     return (
       <View className="relative w-full h-full">
-        <View className="absolute w-full h-[10%] z-50 bg-white">
+        <View className="absolute w-full h-[12%] z-50 bg-white">
           <View className="flex w-full h-full justify-between flex-row">
-            <View className="flex w-2/5 h-full justify-center items-center">
-              <Text className="text-3xl">횟수 : {count}</Text>
-              <Text className="text-3xl">다음 동작 : {step === 1 ? "↑" : "↓"}</Text>
+            <View className="flex w-[35%] h-full justify-center items-center bg-white opacity-50">
+              <Text className="text-2xl font-semibold">횟수 : {nowCount}</Text>
+              <Text className="text-2xl font-semibold">다음 동작 : {step ? "↑" : "↓"}</Text>
             </View>
             {isStarted ? (
-              <TouchableOpacity className="flex w-1/5 h-full justify-center items-center bg-button" onPress={() => setIsStarted(!isStarted)}>
-                <Text className="text-2xl text-white">취소</Text>
+              <TouchableOpacity className="flex w-[30%] h-full justify-center items-center bg-button" onPress={() => setIsStarted(!isStarted)}>
+                <Text className="text-2xl font-semibold text-white">종료</Text>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity className="flex w-1/5 h-full justify-center items-center bg-button" onPress={() => setIsStarted(!isStarted)}>
-                <Text className="text-2xl text-white">시작</Text>
+              <TouchableOpacity className="flex w-[30%] h-full justify-center items-center bg-button" onPress={() => setIsStarted(!isStarted)}>
+                <Text className="text-2xl font-semibold text-white">시작</Text>
               </TouchableOpacity>
             )}
-            <View className="flex w-2/5 h-full justify-center items-center flex-col">
-              <Text className="text-3xl">남은시간</Text>
-              <Text className="text-3xl">{nowTime}초</Text>
+            <View className="flex w-[35%] h-full justify-center items-center flex-col">
+              <Text className="text-2xl font-semibold">진행시간</Text>
+              <Text className="text-2xl font-semibold">{nowTime}초</Text>
             </View>
           </View>
         </View>
@@ -229,7 +249,6 @@ export default function Detect({ navigation, route }) {
           cameraTextureHeight={getOutputTensorHeight()}
           resizeWidth={getOutputTensorWidth()}
           resizeHeight={getOutputTensorHeight()}
-          resizeDepth={3}
           rotation={getTextureRotationAngleInDegrees()}
           onReady={handleCameraStream}
         />

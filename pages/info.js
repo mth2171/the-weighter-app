@@ -12,23 +12,22 @@ const Info = () => {
   return (
     <View className="flex w-full h-full justify-center items-center">
       <View className="flex w-full h-[90%] justify-center items-center">
-        <Text className="text-3xl">기능 소개</Text>
         <View className="flex w-5/6 flex-row justify-center items-center mt-10">
-          <TouchableOpacity className="w-24 h-24" onPress={() => setMode("info1")}>
+          <TouchableOpacity className="w-28 h-28" onPress={() => setMode("info1")}>
             <Image source={info1} className="w-full h-full rounded-l-xl" />
           </TouchableOpacity>
-          <TouchableOpacity className="w-24 h-24" onPress={() => setMode("info2")}>
+          <TouchableOpacity className="w-28 h-28" onPress={() => setMode("info2")}>
             <Image source={info2} className="w-full h-full" />
           </TouchableOpacity>
-          <TouchableOpacity className="w-24 h-24" onPress={() => setMode("info3")}>
+          <TouchableOpacity className="w-28 h-28" onPress={() => setMode("info3")}>
             <Image source={info3} className="w-full h-full rounded-r-xl" />
           </TouchableOpacity>
         </View>
-        <View className="flex w-5/6 h-1/2 mt-5">
-          <View className="flex w-full h-1/5 border-b border-black justify-center p-3">
-            <Text className="text-2xl">{InfoData[mode].title}</Text>
+        <View className="flex w-5/6 h-1/3 mt-5">
+          <View className="flex w-full h-1/3 border-b border-black justify-center p-3">
+            <Text className="text-3xl">{InfoData[mode].title}</Text>
           </View>
-          <View className="flex w-full h-4/5 p-3">
+          <View className="flex w-full h-2/3 p-3">
             <Text className="text-xl">{InfoData[mode].content}</Text>
           </View>
         </View>

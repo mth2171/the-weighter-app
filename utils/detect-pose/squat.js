@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { getKeypointsObject, getAngle } from "../pose-utils";
 
 export default function Squat() {
-  const [count, setCount] = useState(0);
-  const [step, setStep] = useState(0);
+  const [count, setCount] = useState(false);
+  const [step, setStep] = useState(false);
 
   const [down, setDown] = useState(false);
   const [up, setUp] = useState(false);
@@ -26,17 +26,16 @@ export default function Squat() {
   };
 
   useEffect(() => {
-    if (step == 0 && down) {
-      console.log("down");
-      setStep((step) => 1);
+    if (!step && down) {
+      setStep(true);
+      setCount(false);
     }
   }, [down, step]);
 
   useEffect(() => {
-    if (step == 1 && up) {
-      console.log("up");
-      setStep((step) => 0);
-      setCount((count) => count + 1);
+    if (step && up) {
+      setStep(false);
+      setCount(true);
     }
   }, [up, step, count]);
 
@@ -45,10 +44,8 @@ export default function Squat() {
 
 const checkDown = (angleKnee) => {
   if (angleKnee.rightHigh > 160 && angleKnee.leftHigh > 160) {
-    console.log(angleKnee);
     return true;
   } else if (angleKnee.rightHigh < 20 && angleKnee.leftHigh < 20) {
-    console.log(angleKnee);
     return true;
   } else {
     return false;
@@ -57,7 +54,6 @@ const checkDown = (angleKnee) => {
 
 const checkUp = (angleKnee) => {
   if (angleKnee.rightHigh > 70 && angleKnee.rightHigh < 110 && angleKnee.leftHigh > 70 && angleKnee.leftHigh < 110) {
-    console.log(angleKnee);
     return true;
   } else {
     return false;

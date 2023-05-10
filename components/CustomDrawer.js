@@ -2,9 +2,6 @@ import React, { useEffect } from "react";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { View, Text, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { enableScreens } from "react-native-screens";
-
-enableScreens(true);
 
 const CustomDrawer = ({ navigation, handleLogout, isLogin }, props) => {
   return (
@@ -30,13 +27,13 @@ const CustomDrawer = ({ navigation, handleLogout, isLogin }, props) => {
         <DrawerItem
           icon={() => <Icon name="barbell" size={25} />}
           label={() => <Text className="text-xl">자세 측정</Text>}
-          onPress={() => navigation.navigate("PoseSelect")}
+          onPress={() => navigation.navigate("PoseSetting")}
         />
         <Text className="flex w-full px-3 text-2xl mt-6">건강 관리</Text>
         <DrawerItem
           icon={() => <Icon name="restaurant" size={25} />}
           label={() => <Text className="text-xl">영양소 분석</Text>}
-          onPress={() => navigation.navigate("Select")}
+          onPress={() => navigation.navigate("NutritionSelect")}
         />
         <DrawerItem
           icon={() => <Icon name="star-outline" size={25} />}

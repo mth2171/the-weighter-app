@@ -15,6 +15,7 @@ const ExerciseRecommend = () => {
   const [isButtonClick, setIsButtonClick] = useState(false);
   const [result, setResult] = useState("");
   const [training, setTraining] = useState("Cardio");
+
   const ageRef = useRef(null);
   const heightRef = useRef(null);
   const weightRef = useRef(null);
@@ -24,10 +25,36 @@ const ExerciseRecommend = () => {
     if (gender && age && height && weight && goalWeight) {
       setIsButtonClick(true);
       axios
-        .post(`http://192.168.0.242:3000/api/chat`, { prompt: { gender, age, height, weight, goalWeight, training, flag: true } })
+        .post(`http://172.21.1.182:3000/api/chat`, { prompt: { gender, age, height, weight, goalWeight, training, flag: true } })
         .then((res) => {
           const responseStr = res.data.response.text.replace(/^\n+/, "");
           setResult(responseStr);
+        })
+        .catch((err) => console.error(err));
+    }
+  };
+
+  const onClickSaveButton = () => {
+    if (result) {
+      axios
+        .post(`http://172.21.1.182:3000/api/chat`, { prompt: { buttonType: true, flag: true }, data: result })
+        .then((res) => {
+          const plan = res.data.response.text;
+          getToken().then((token) => {
+            axios
+              .post(
+                `http://${process.env.API_URL}/planner/exercise`,
+                { plan },
+                {
+                  headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `bearer ${token.token}`,
+                  },
+                }
+              )
+              .then((res) => console.log(res.data))
+              .catch((err) => console.error(err));
+          });
         })
         .catch((err) => console.error(err));
     }
@@ -135,13 +162,21 @@ const ExerciseRecommend = () => {
               )}
               <View className="flex w-full mt-5 flex-row justify-center items-center">
                 <TouchableOpacity
-                  className="flex w-1/3 p-3 justify-center items-center bg-button mt-5 rounded-xl"
+                  className="flex w-1/3 p-3 justify-center items-center bg-button mt-5 rounded-xl mx-1"
                   onPress={() => {
                     setResult("");
                     setIsButtonClick(false);
                   }}
                 >
                   <Text className="text-white text-lg">닫기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="flex w-1/3 p-3 justify-center items-center bg-button mt-5 rounded-xl mx-1"
+                  onPress={() => {
+                    onClickSaveButton();
+                  }}
+                >
+                  <Text className="text-white text-lg">저장</Text>
                 </TouchableOpacity>
               </View>
             </View>

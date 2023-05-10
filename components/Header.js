@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useRef } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 
 const Header = ({ navigation, layout }) => {
@@ -21,8 +21,8 @@ const Header = ({ navigation, layout }) => {
   };
 
   return (
-    <View className="flex w-full justify-center mt-14 p-3 bg-neutral-100">
-      <TouchableOpacity onPress={() => navigation.openDrawer()}>
+    <View className="flex w-full mt-14 justify-center bg-neutral-100">
+      <TouchableOpacity onPress={() => navigation.openDrawer()} className="p-3">
         <Icon name="menu" size={30} color="#00909E" />
       </TouchableOpacity>
     </View>
